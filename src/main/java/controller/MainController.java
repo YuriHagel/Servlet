@@ -40,31 +40,31 @@ public class MainController {
 
   //Пополнить баланс
   @ApiOperation("Пополнить баланс")
-  @PostMapping("{login}/addmoney/{amount}")
+  @PostMapping("/setBalance")
   public void setBalance(@PathVariable Double amount, @PathVariable String login) {
     userService.addMoney(amount, login);
   }
 
   @ApiOperation("Уменьшить баланс")
-  @PostMapping("{login}/withdraw/{amount}")
+  @PostMapping("/drawBalance")
   public void withdrawBalance(@PathVariable String login, @PathVariable Double amount) {
     userService.withdrawMoney(amount, login);
   }
 
   @ApiOperation("Удалить абонента")
-  @DeleteMapping("{login}/delete")
+  @DeleteMapping("/delete")
   public void deleteUser(@PathVariable String login) {
     userService.deleteUser(login);
   }
 
   @ApiOperation("Найти абонента по логину")
-  @GetMapping("{login}/ login")
+  @GetMapping("/find_customer")
   public void findLoginId(@PathVariable String login) {
     userService.getUser(login);
   }
 
   @ApiOperation("Верификация юзера")
-  @PostMapping("{login}/delete")
+  @PostMapping("/verify")
   public void verifyUser(@PathVariable String login, @PathVariable String password) {
     userService.verifyUser(login, password);
   }
