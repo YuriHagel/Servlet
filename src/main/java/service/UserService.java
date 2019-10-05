@@ -1,5 +1,6 @@
 package service;
 
+import dto.UserDto;
 import entity.UserEntity;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -10,6 +11,8 @@ import repository.UserRepository;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,6 +22,7 @@ import java.util.regex.Pattern;
 public class UserService {
   private static final Logger logger = LoggerFactory.getLogger(UserService.class);
   private UserRepository userRepository;
+  private final UserDto userDto;
 
 
   public UserEntity register(String login, String password) {
@@ -27,6 +31,11 @@ public class UserService {
     usersEntity.setPassword(hash(password));
     userRepository.save(usersEntity);
     return usersEntity;
+  }
+
+  //Найти всех абонентов.
+  public UserEntity getUser(final String login) {
+    return userRepository.findByLogin(login);
   }
 
   //Установить баланс

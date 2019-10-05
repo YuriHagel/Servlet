@@ -1,11 +1,8 @@
 package controller;
 
-import command.AddMoney;
-import command.WithdrawMoneyCommand;
 import entity.UserEntity;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
-import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,12 +21,11 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping(path = "/api")
 public class MainController {
   private final UserService userService;
-  private final CommandGateway commandGateway;
 
   @ApiOperation("Зарегистрировать абонента")
   @PostMapping("/register")
   public UserEntity register(String login, String password) {
-    return register(login, password);
+    return userService.register(login, password);
   }
 
   @ApiOperation("Выйти")
@@ -43,23 +39,34 @@ public class MainController {
   }
 
   //Пополнить баланс
+  @ApiOperation("Пополнить баланс")
   @PostMapping("{login}/addmoney/{amount}")
-  public void addMoney(@PathVariable String login, @PathVariable Double amount){
-    commandGateway.send(
-            new AddMoney(
-                    login,
-                    amount
-            ));
+  public void setBalance(@PathVariable Double amount, @PathVariable String login) {
+    userService.addMoney(amount, login);
   }
 
+  @ApiOperation("Уменьшить баланс")
   @PostMapping("{login}/withdraw/{amount}")
-  public void withdrawMoney(@PathVariable String login,@PathVariable Double amount){
-    withdrawMoney(login, amount);
-    commandGateway.send(
-            new WithdrawMoneyCommand(
-                    login,
-                    amount
-            )
-    );
+  public void withdrawBalance(@PathVariable String login, @PathVariable Double amount) {
+    userService.withdrawMoney(amount, login);
   }
+
+  @ApiOperation("Удалить абонента")
+  @DeleteMapping("{login}/delete")
+  public void deleteUser(@PathVariable String login) {
+    userService.deleteUser(login);
+  }
+
+  @ApiOperation("Найти абонента по логину")
+  @GetMapping("{login}/ login")
+  public void findLoginId(@PathVariable String login) {
+    userService.getUser(login);
+  }
+
+  @ApiOperation("Верификация юзера")
+  @PostMapping("{login}/delete")
+  public void verifyUser(@PathVariable String login, @PathVariable String password) {
+    userService.verifyUser(login, password);
+  }
+
 }
