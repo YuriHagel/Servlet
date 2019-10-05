@@ -1,10 +1,12 @@
 package dto;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Setter
+@Getter
+@AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class UserDto {
   private String password;
   private String login;

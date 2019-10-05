@@ -1,7 +1,11 @@
 package controller;
 
-import entity.UserEntity;
+import dto.ListResponse;
+import dto.Response;
+import dto.UserDto;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -13,19 +17,22 @@ import service.UserService;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
+
 /**
  * @author y.khagel
  */
 @RestController
 @AllArgsConstructor
-@RequestMapping(path = "/api")
+@ApiResponses({@ApiResponse(code = 400, message = "Bad Request")})
+@RequestMapping(path = "/api", produces = APPLICATION_XML_VALUE)
 public class MainController {
   private final UserService userService;
 
   @ApiOperation("Зарегистрировать абонента")
   @PostMapping("/register")
-  public UserEntity register(String login, String password) {
-    return userService.register(login, password);
+  public Response<UserDto> register(String login, String password) {
+    return new Response(userService.register(login, password));
   }
 
   @ApiOperation("Выйти")
@@ -41,32 +48,14 @@ public class MainController {
   //Пополнить баланс
   @ApiOperation("Пополнить баланс")
   @PostMapping("/setBalance")
-  public void setBalance(@PathVariable Double amount, @PathVariable String login) {
-    userService.addMoney(amount, login);
-  }
-
-  @ApiOperation("Уменьшить баланс")
-  @PostMapping("/drawBalance")
-  public void withdrawBalance(@PathVariable String login, @PathVariable Double amount) {
-    userService.withdrawMoney(amount, login);
-  }
-
-  @ApiOperation("Удалить абонента")
-  @DeleteMapping("/delete")
-  public void deleteUser(@PathVariable String login) {
-    userService.deleteUser(login);
+  public Response<UserDto> setBalance(@PathVariable Double amount, @PathVariable String login) {
+    return new Response(userService.addMoney(amount, login));
   }
 
   @ApiOperation("Найти абонента по логину")
   @GetMapping("/find_customer")
-  public void findLoginId(@PathVariable String login) {
-    userService.getUser(login);
-  }
-
-  @ApiOperation("Верификация юзера")
-  @PostMapping("/verify")
-  public void verifyUser(@PathVariable String login, @PathVariable String password) {
-    userService.verifyUser(login, password);
+  public ListResponse<UserDto> getUser(final String login) {
+    return new ListResponse(userService.getUser(login));
   }
 
 }

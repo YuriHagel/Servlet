@@ -2,17 +2,16 @@ package service;
 
 import dto.UserDto;
 import entity.UserEntity;
+import enums.Response;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import repository.UserRepository;
 
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,13 +23,17 @@ public class UserService {
   private UserRepository userRepository;
   private final UserDto userDto;
 
-
   public UserEntity register(String login, String password) {
     UserEntity usersEntity = new UserEntity();
     usersEntity.setLogin(login);
     usersEntity.setPassword(hash(password));
     userRepository.save(usersEntity);
-    return usersEntity;
+    if (usersEntity.equals(validate(usersEntity))) {
+      return usersEntity;
+    } else {
+      System.exit(0);
+    }
+    return register(login, password);
   }
 
   //Найти всех абонентов.
@@ -40,40 +43,23 @@ public class UserService {
 
   //Установить баланс
 
-  public void addMoney(Double ammount, String login) {
+  public UserEntity addMoney(Double ammount, String login) {
     UserEntity user = userRepository.findByLogin(login);
     user.setBalance(user.getBalance() + ammount);
     userRepository.save(user);
-  }
-
-  //Удалить пользователя
-
-  public void deleteUser(String login) {
-    UserEntity user = userRepository.findByLogin(login);
-    userRepository.deleteById(user.getId());
-  }
-
-  //Верификация юзера.
-  public UserEntity verifyUser(String login, String password) {
-    return userRepository.findByLoginAndPassword(login, password);
-  }
-
-  //Уменьшить балан юзера.
-  public void withdrawMoney(Double ammount, String login) {
-    UserEntity user = userRepository.findByLogin(login);
-    user.setBalance(user.getBalance() - ammount);
-    userRepository.save(user);
+    return user;
   }
 
 
-  public String hash(String password) {
+  private String hash(String password) {
     try {
       MessageDigest md = MessageDigest.getInstance("MD5");
       md.update(password.getBytes());
       byte[] bytes = md.digest(password.getBytes());
       StringBuilder stringBuffer = new StringBuilder();
-      for (int i = 0; i < bytes.length; i++)
-        stringBuffer.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+      for (byte aByte : bytes)
+        stringBuffer
+                .append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
 
       return stringBuffer.toString();
     } catch (NoSuchAlgorithmException e) {
@@ -87,6 +73,25 @@ public class UserService {
     Pattern pattern = Pattern.compile("^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
     Matcher matcher = pattern.matcher(number);
     return matcher.matches();
+  }
+
+  protected Response validate(UserEntity user) {
+    if (isExistAgent(user))
+      return Response.DUPLICATE_USER;
+    else if (!isValidLogin(user.getLogin()))
+      return Response.WRONG_LOGIN;
+    else if (isBadPassword(user.getPassword()))
+      return Response.BAD_PASSWORD;
+
+    return null;
+  }
+
+  private boolean isExistAgent(UserEntity userEntity) {
+    return userRepository.findByLogin(userEntity.toString()) != null;
+  }
+
+  private boolean isBadPassword(String password) {
+    return StringUtils.length(password) < 8;
   }
 }
 
