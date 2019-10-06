@@ -5,6 +5,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Objects;
 
 @Data
 @Entity
@@ -21,5 +22,20 @@ public class UserEntity {
   private Date dtCreated;
   @Column(name = "balance")
   private Double balance;
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final UserEntity other = (UserEntity) obj;
+    return Objects.equals(this.login, other.login);
+  }
 }
 

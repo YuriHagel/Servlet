@@ -23,17 +23,18 @@ public class UserService {
   private UserRepository userRepository;
   private final UserDto userDto;
 
+  //Регистрация абонента.
   public UserEntity register(String login, String password) {
     UserEntity usersEntity = new UserEntity();
     usersEntity.setLogin(login);
     usersEntity.setPassword(hash(password));
-    userRepository.save(usersEntity);
     if (usersEntity.equals(validate(usersEntity))) {
-      return usersEntity;
+      return register(login, password);
     } else {
-      System.exit(0);
+      logger.error("error");
     }
-    return register(login, password);
+    userRepository.save(usersEntity);
+    return usersEntity;
   }
 
   //Найти всех абонентов.
@@ -42,7 +43,6 @@ public class UserService {
   }
 
   //Установить баланс
-
   public UserEntity addMoney(Double ammount, String login) {
     UserEntity user = userRepository.findByLogin(login);
     user.setBalance(user.getBalance() + ammount);
@@ -50,7 +50,15 @@ public class UserService {
     return user;
   }
 
+  public UserEntity getOneByUsernameAndPassword(String login, String password) {
+    UserEntity userEntity = userRepository.findByLoginAndPassword(login, password);
+    if (password != null) {
+      return userEntity;
+    }
+    return null;
+  }
 
+  //Хешкод.
   private String hash(String password) {
     try {
       MessageDigest md = MessageDigest.getInstance("MD5");
@@ -68,15 +76,15 @@ public class UserService {
     }
   }
 
-
+  //Валидация.
   private boolean isValidLogin(String number) {
     Pattern pattern = Pattern.compile("^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
     Matcher matcher = pattern.matcher(number);
     return matcher.matches();
   }
 
-  protected Response validate(UserEntity user) {
-    if (isExistAgent(user))
+  private Response validate(UserEntity user) {
+    if (isExistUser(user))
       return Response.DUPLICATE_USER;
     else if (!isValidLogin(user.getLogin()))
       return Response.WRONG_LOGIN;
@@ -86,13 +94,14 @@ public class UserService {
     return null;
   }
 
-  private boolean isExistAgent(UserEntity userEntity) {
+  private boolean isExistUser(UserEntity userEntity) {
     return userRepository.findByLogin(userEntity.toString()) != null;
   }
 
   private boolean isBadPassword(String password) {
     return StringUtils.length(password) < 8;
   }
+
 }
 
 

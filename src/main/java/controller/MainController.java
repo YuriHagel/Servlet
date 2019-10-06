@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.ui.Model;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +32,11 @@ public class MainController {
 
   @ApiOperation("Зарегистрировать абонента")
   @PostMapping("/register")
-  public Response<UserDto> register(String login, String password) {
+  public Response<UserDto> register(Model model, String login, String password) {
+    if (userService.getUser(login) != null) {
+      model.addAttribute("message", "Login have exists. Please enter again!!!");
+      return register(model, login, password);
+    }
     return new Response(userService.register(login, password));
   }
 

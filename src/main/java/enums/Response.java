@@ -1,8 +1,10 @@
 package enums;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-
+@Getter
+@AllArgsConstructor
 public enum Response {
   OK(0, "все хорошо"),
   DUPLICATE_USER(1, "такой агент уже зарегистрирован"),
@@ -11,19 +13,6 @@ public enum Response {
   OTHER(5, "другая ошибка повторите позже"),
   USER_NOT_EXITS(6, "Пользователь с данным логином не существует");
 
-  @Getter
   private final int code;
-  @Getter
   private final String description;
-
-  Response(int code, String description) {
-    this.code = code;
-    this.description = description;
-  }
-
-  @Override
-  public String toString() {
-    return code + ": " + description;
-  }
-
 }
