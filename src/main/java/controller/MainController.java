@@ -13,7 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
-import service.UserService;
+import service.UserServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,7 +28,7 @@ import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 @ApiResponses({@ApiResponse(code = 400, message = "Bad Request")})
 @RequestMapping(path = "/api", produces = APPLICATION_XML_VALUE)
 public class MainController {
-  private final UserService userService;
+  private final UserServiceImpl userService;
 
   @ApiOperation("Зарегистрировать абонента")
   @PostMapping("/register")
